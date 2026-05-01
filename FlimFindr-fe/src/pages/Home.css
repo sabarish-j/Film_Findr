@@ -1,0 +1,110 @@
+.home__container {
+  max-width: var(--max-width-content);
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+  width: 100%;
+}
+
+.home__loading {
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.home__language-bar {
+  background-color: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4) 0;
+  margin: var(--space-8) 0;
+  sticky: top var(--navbar-height);
+  z-index: 50;
+}
+
+.home__language-bar .home__container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.home__language-label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.home__language-buttons {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.home__language-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.home__language-btn:hover {
+  border-color: var(--color-brand-red);
+  color: var(--color-text-primary);
+}
+
+.home__language-btn--active {
+  background-color: var(--color-brand-red);
+  border-color: var(--color-brand-red);
+  color: var(--color-text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home__container {
+    padding: 0 var(--space-6);
+  }
+
+  .home__language-bar {
+    margin: var(--space-6) 0;
+    padding: var(--space-3) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .home__container {
+    padding: 0 var(--space-4);
+  }
+
+  .home__language-bar {
+    margin: var(--space-4) 0;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .home__language-bar .home__container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .home__language-label {
+    width: 100%;
+  }
+
+  .home__language-buttons {
+    width: 100%;
+  }
+
+  .home__language-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
