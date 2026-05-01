@@ -19,7 +19,7 @@
 
 .horizontal-movie-row__scroll {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
@@ -37,7 +37,7 @@
 
 .horizontal-movie-row__item {
   flex-shrink: 0;
-  width: 185px;
+  width: 285px;
   aspect-ratio: 2/3;
   scroll-snap-align: start;
 }
@@ -75,13 +75,29 @@
 }
 
 /* Responsive */
+@media (max-width: 1280px) {
+  .horizontal-movie-row__item {
+    width: 245px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .horizontal-movie-row__scroll {
+    gap: var(--space-4);
+  }
+
+  .horizontal-movie-row__item {
+    width: 210px;
+  }
+}
+
 @media (max-width: 768px) {
   .horizontal-movie-row__scroll {
     gap: var(--space-3);
   }
 
   .horizontal-movie-row__item {
-    width: 160px;
+    width: 180px;
   }
 
   .horizontal-movie-row__button {
@@ -104,7 +120,7 @@
   }
 
   .horizontal-movie-row__item {
-    width: 140px;
+    width: 145px;
   }
 
   .horizontal-movie-row__button {

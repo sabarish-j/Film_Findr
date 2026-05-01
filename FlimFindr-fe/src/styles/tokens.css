@@ -142,6 +142,31 @@
   --skeleton-duration: 1.6s;
 }
 
+/* Light theme overrides — applied when <html data-theme="light"> */
+[data-theme='light'] {
+  --color-bg-base:        #fafafa;
+  --color-bg-surface:     #ffffff;
+  --color-bg-elevated:    #f3f3f3;
+  --color-bg-overlay:     #e6e6e6;
+  --color-bg-hover:       #ededed;
+
+  --color-text-primary:   #0a0a0a;
+  --color-text-secondary: #2a2a2a;
+  --color-text-muted:     #666666;
+  --color-text-disabled:  #aaaaaa;
+
+  --color-border:         #e0e0e0;
+  --color-border-subtle:  #f0f0f0;
+
+  --skeleton-base:    #e6e6e6;
+  --skeleton-shine:   #f4f4f4;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.12);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.16);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast:    0ms;

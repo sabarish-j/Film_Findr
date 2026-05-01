@@ -8,8 +8,11 @@ const {
   updatePreferences,
   getProfile,
   updateProfile,
+  uploadAvatar,
+  deleteAvatar,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/auth');
+const { uploadAvatar: uploadAvatarMiddleware } = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -18,6 +21,9 @@ router.use(protect);
 
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
+
+router.post('/avatar', uploadAvatarMiddleware.single('avatar'), uploadAvatar);
+router.delete('/avatar', deleteAvatar);
 
 router.post('/watchlist', addToWatchlist);
 router.delete('/watchlist', removeFromWatchlist);

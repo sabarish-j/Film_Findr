@@ -14,62 +14,49 @@ export const Watchlist = () => {
   const { addToast } = useToast();
   const {
     watchlist,
+    watchlistMovies,
+    watchlistFetched,
     getWatchlist,
-    getMovieDetails,
+    fetchWatchlistMovies,
     removeFromWatchlist,
   } = useContext(MovieContext);
 
-  const [watchlistMovies, setWatchlistMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Show loading only on first-ever load, not when navigating back to a populated watchlist
+  const [isLoading, setIsLoading] = useState(!watchlistFetched);
 
-  // Fetch watchlist on mount
+  // Fetch watchlist IDs on mount (skipped by context if already cached)
   useEffect(() => {
     const initializeWatchlist = async () => {
       try {
-        setIsLoading(true);
         await getWatchlist();
       } catch (error) {
         addToast({
           type: 'error',
           message: 'Failed to load watchlist',
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
     initializeWatchlist();
   }, []);
 
-  // Fetch movie details for each watchlist item
+  // Resolve movie details when watchlist IDs change
   useEffect(() => {
-    const fetchMovieDetails = async () => {
-      if (watchlist.length === 0) {
-        setWatchlistMovies([]);
-        setIsLoading(false);
-        return;
-      }
-
+    const resolve = async () => {
       try {
-        setIsLoading(true);
-        const movies = await Promise.all(
-          watchlist.map((movieId) =>
-            getMovieDetails(movieId).catch(() => null)
-          )
-        );
-        setWatchlistMovies(movies.filter((movie) => movie !== null));
+        if (!watchlistFetched) setIsLoading(true);
+        await fetchWatchlistMovies();
       } catch (error) {
         addToast({
           type: 'error',
           message: 'Failed to fetch watchlist movies',
         });
-        setWatchlistMovies([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMovieDetails();
+    resolve();
   }, [watchlist]);
 
   const handleWatchlistToggle = async (movieId) => {

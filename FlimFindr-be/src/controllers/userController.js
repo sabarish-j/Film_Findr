@@ -1,4 +1,75 @@
 const User = require('../models/User');
+const path = require('path');
+const fs = require('fs');
+
+// Upload / replace avatar
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Delete previous avatar file (best-effort)
+    if (user.avatar) {
+      const oldPath = path.join(__dirname, '..', '..', user.avatar.replace(/^\//, ''));
+      fs.unlink(oldPath, () => {
+        /* ignore — file may have already been removed */
+      });
+    }
+
+    const publicPath = `/uploads/avatars/${req.file.filename}`;
+    user.avatar = publicPath;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar updated',
+      avatar: publicPath,
+      user: user.toObject(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Remove avatar
+exports.deleteAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user.avatar) {
+      const oldPath = path.join(__dirname, '..', '..', user.avatar.replace(/^\//, ''));
+      fs.unlink(oldPath, () => {});
+      user.avatar = null;
+      await user.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar removed',
+      user: user.toObject(),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // Add to watchlist
 exports.addToWatchlist = async (req, res) => {

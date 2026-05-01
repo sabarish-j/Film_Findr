@@ -1,5 +1,13 @@
 // API Configuration
-export const API_BASE_URL = 'http://localhost:5000/api';
+export const SERVER_BASE_URL = 'http://localhost:5000';
+export const API_BASE_URL = `${SERVER_BASE_URL}/api`;
+
+// Helper to resolve a server-relative avatar path to a full URL
+export const resolveAvatarUrl = (avatar) => {
+  if (!avatar) return null;
+  if (avatar.startsWith('http')) return avatar;
+  return `${SERVER_BASE_URL}${avatar.startsWith('/') ? '' : '/'}${avatar}`;
+};
 
 // TMDB Image CDN
 export const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';
@@ -39,6 +47,22 @@ export const GENRES = [
   'Adventure',
   'Fantasy',
 ];
+
+// Map app genre names → TMDB genre IDs
+// (used to fetch movies by id and to find the localized name from TMDB's genre list)
+export const GENRE_ID_MAP = {
+  Action: 28,
+  Adventure: 12,
+  Animation: 16,
+  Comedy: 35,
+  Crime: 80,
+  Drama: 18,
+  Fantasy: 14,
+  Horror: 27,
+  Romance: 10749,
+  'Sci-Fi': 878,
+  Thriller: 53,
+};
 
 // Validation
 export const EMAIL_REGEX = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;

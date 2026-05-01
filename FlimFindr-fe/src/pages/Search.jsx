@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Filter } from 'lucide-react';
 import { MovieContext } from '../context/MovieContext';
@@ -26,11 +26,18 @@ export const Search = () => {
     getWatchlist,
   } = useContext(MovieContext);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (query.trim()) {
+  // Debounced auto-search as the user types
+  useEffect(() => {
+    const trimmed = query.trim();
+
+    if (!trimmed) {
+      setHasSearched(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
       try {
-        await searchMovies(query);
+        await searchMovies(trimmed);
         setHasSearched(true);
         await getWatchlist();
       } catch (err) {
@@ -39,8 +46,10 @@ export const Search = () => {
           message: 'Search failed. Please try again.',
         });
       }
-    }
-  };
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [query]);
 
   const handleClear = () => {
     setQuery('');
@@ -83,7 +92,7 @@ export const Search = () => {
         </div>
 
         {/* Search Form */}
-        <form className="search__form" onSubmit={handleSearch}>
+        <form className="search__form" onSubmit={(e) => e.preventDefault()}>
           <div className="search__input-wrapper">
             <Input
               type="text"
@@ -96,9 +105,6 @@ export const Search = () => {
           </div>
 
           <div className="search__actions">
-            <Button variant="primary" size="md" type="submit" disabled={loading}>
-              {loading ? 'Searching...' : 'Search'}
-            </Button>
             {hasSearched && (
               <Button variant="ghost" size="md" type="button" onClick={handleClear}>
                 Clear

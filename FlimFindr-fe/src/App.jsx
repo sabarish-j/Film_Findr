@@ -12,6 +12,7 @@ import { Search } from './pages/Search';
 import { MovieDetails } from './pages/MovieDetails';
 import { Watchlist } from './pages/Watchlist';
 import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
 
 import { AuthContext } from './context/AuthContext';
 
@@ -70,6 +71,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

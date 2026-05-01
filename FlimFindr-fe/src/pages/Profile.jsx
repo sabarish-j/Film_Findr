@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User as UserIcon, Lock, Settings } from 'lucide-react';
+import { User as UserIcon, Lock, Settings, Camera, Trash2 } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../hooks/useToast';
 import axios from 'axios';
@@ -8,7 +8,14 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
-import { GENRES, LANGUAGES, API_BASE_URL, EMAIL_REGEX, MIN_PASSWORD_LENGTH } from '../constants';
+import {
+  GENRES,
+  LANGUAGES,
+  API_BASE_URL,
+  EMAIL_REGEX,
+  MIN_PASSWORD_LENGTH,
+  resolveAvatarUrl,
+} from '../constants';
 import './Profile.css';
 
 const tabs = [
@@ -18,11 +25,14 @@ const tabs = [
 ];
 
 export const Profile = () => {
-  const { user: authUser } = useContext(AuthContext);
+  const { user: authUser, getCurrentUser } = useContext(AuthContext);
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState('account');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +48,8 @@ export const Profile = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -59,11 +71,54 @@ export const Profile = () => {
         });
       } finally {
         setIsLoading(false);
+        setHasInitialized(true);
       }
     };
 
     fetchProfile();
   }, []);
+
+  // Auto-save preferences (languages + genres) with debounce
+  useEffect(() => {
+    if (!hasInitialized) return;
+
+    if (formData.preferredLanguages.length < 3) {
+      setErrors((prev) => ({
+        ...prev,
+        preferredLanguages: 'Please select at least 3 languages',
+      }));
+      return;
+    }
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.preferredLanguages;
+      return next;
+    });
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsAutoSaving(true);
+        await axios.put(`${API_BASE_URL}/user/profile`, {
+          preferredLanguages: formData.preferredLanguages,
+          favoriteGenres: formData.favoriteGenres,
+        });
+        addToast({
+          type: 'success',
+          message: 'Preferences saved',
+        });
+      } catch (error) {
+        addToast({
+          type: 'error',
+          message: 'Failed to save preferences',
+        });
+      } finally {
+        setIsAutoSaving(false);
+      }
+    }, 800);
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.preferredLanguages, formData.favoriteGenres, hasInitialized]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -165,6 +220,62 @@ export const Profile = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAvatarSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      addToast({ type: 'error', message: 'Please select an image file' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      addToast({ type: 'error', message: 'Image must be smaller than 5 MB' });
+      return;
+    }
+
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onload = (evt) => setAvatarPreview(evt.target.result);
+    reader.readAsDataURL(file);
+
+    try {
+      setIsUploadingAvatar(true);
+      const formData = new FormData();
+      formData.append('avatar', file);
+      await axios.post(`${API_BASE_URL}/user/avatar`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      await getCurrentUser(); // refresh user with new avatar
+      setAvatarPreview(null);
+      addToast({ type: 'success', message: 'Profile picture updated' });
+    } catch (error) {
+      setAvatarPreview(null);
+      addToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to upload picture',
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    try {
+      setIsUploadingAvatar(true);
+      await axios.delete(`${API_BASE_URL}/user/avatar`);
+      await getCurrentUser();
+      addToast({ type: 'success', message: 'Profile picture removed' });
+    } catch (error) {
+      addToast({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to remove picture',
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -285,6 +396,61 @@ export const Profile = () => {
                 transition={{ duration: 0.2 }}
                 className="profile__tab-content"
               >
+                {/* Avatar */}
+                <div className="profile__section">
+                  <h2 className="profile__section-title">Profile Picture</h2>
+                  <div className="profile__avatar-row">
+                    <div className="profile__avatar-large">
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="Preview" />
+                      ) : authUser?.avatar ? (
+                        <img src={resolveAvatarUrl(authUser.avatar)} alt={authUser.name} />
+                      ) : (
+                        <span>{authUser?.name?.charAt(0).toUpperCase() || '?'}</span>
+                      )}
+                      {isUploadingAvatar && (
+                        <div className="profile__avatar-overlay">
+                          <Spinner size="md" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="profile__avatar-actions">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarSelect}
+                        style={{ display: 'none' }}
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="md"
+                        icon={<Camera size={18} />}
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                      >
+                        Change Picture
+                      </Button>
+                      {authUser?.avatar && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="md"
+                          icon={<Trash2 size={18} />}
+                          onClick={handleAvatarDelete}
+                          disabled={isUploadingAvatar}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                      <p className="profile__avatar-hint">
+                        JPEG, PNG, WEBP or GIF. Max 5 MB.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="profile__section">
                   <h2 className="profile__section-title">Basic Information</h2>
 
@@ -382,16 +548,9 @@ export const Profile = () => {
                   </div>
                 </div>
 
-                <Button
-                  variant="primary"
-                  size="lg"
-                  type="submit"
-                  loading={isSaving}
-                  disabled={isSaving}
-                  fullWidth
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
+                {isAutoSaving && (
+                  <p className="profile__autosave-hint">Saving changes...</p>
+                )}
               </motion.div>
             )}
 

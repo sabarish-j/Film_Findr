@@ -1,0 +1,121 @@
+.settings {
+  width: 100%;
+}
+
+.settings__header {
+  margin-bottom: var(--space-12);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings__title {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text-primary);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+.settings__subtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+}
+
+.settings__section {
+  margin-bottom: var(--space-12);
+}
+
+.settings__section-header {
+  margin-bottom: var(--space-6);
+}
+
+.settings__section-title {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--color-text-primary);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.settings__section-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.settings__theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.settings__theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background-color: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.settings__theme-card:hover {
+  border-color: var(--color-text-muted);
+  background-color: var(--color-bg-overlay);
+}
+
+.settings__theme-card--active {
+  border-color: var(--color-brand-red);
+  background-color: rgba(229, 9, 20, 0.08);
+}
+
+.settings__theme-icon {
+  color: var(--color-brand-red);
+}
+
+.settings__theme-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings__theme-label {
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.settings__theme-description {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.settings__theme-check {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-brand-red);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .settings__title {
+    font-size: var(--text-2xl);
+  }
+
+  .settings__theme-grid {
+    grid-template-columns: 1fr;
+  }
+}
