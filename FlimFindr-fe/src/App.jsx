@@ -1,9 +1,17 @@
 import React, { useContext, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './styles/global.css';
 
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ChatFab } from './components/ai/ChatFab';
+import { ChatDrawer } from './components/ai/ChatDrawer';
+
+function HomeOnlyFab() {
+  const location = useLocation();
+  if (location.pathname !== '/') return null;
+  return <ChatFab />;
+}
 
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -86,6 +94,13 @@ function App() {
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      {token && (
+        <>
+          <HomeOnlyFab />
+          <ChatDrawer />
+        </>
+      )}
     </Router>
   );
 }
