@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const compression = require('compression');
 require('dotenv').config();
 const connectDB = require('./config/database');
 
@@ -16,7 +17,8 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(compression());
+app.use(cors({ exposedHeaders: ['X-Cache'] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -42,6 +42,29 @@
   scroll-snap-align: start;
 }
 
+/* Inline loader shown at the right edge while paginating */
+.horizontal-movie-row__loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-lg);
+  color: var(--color-brand-red);
+}
+
+.horizontal-movie-row__spinner {
+  animation: row-spin 0.9s linear infinite;
+}
+
+@keyframes row-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .horizontal-movie-row__spinner { animation: none; }
+}
+
 .horizontal-movie-row__button {
   position: absolute;
   top: 50%;

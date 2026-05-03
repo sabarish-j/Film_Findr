@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search as SearchIcon } from 'lucide-react';
 import { MovieContext } from '../context/MovieContext';
 import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../hooks/useToast';
+import { useDebounce } from '../hooks/useDebounce';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { HeroSection } from '../components/layout/HeroSection';
 import { HorizontalMovieRow } from '../components/movie/HorizontalMovieRow';
@@ -38,10 +39,17 @@ export const Home = () => {
     addToWatchlist,
     removeFromWatchlist,
     getWatchlist,
+    loadMorePopular,
+    loadMoreUpcoming,
+    loadMoreByGenre,
+    hasMorePopular,
+    hasMoreUpcoming,
+    hasMoreByGenre,
   } = useContext(MovieContext);
 
   // searchQuery now comes from MovieContext (driven by the navbar input)
   const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearch = useDebounce(searchQuery, 350);
   const isSearchActive = searchQuery.trim().length > 0;
 
   // First-time only: seed selectedLanguage from user's preferred languages.
@@ -76,25 +84,36 @@ export const Home = () => {
     })();
   }, [selectedLanguage]);
 
-  // Debounced real-time search (350 ms after the last keystroke)
+  // Real-time search — debounced via useDebounce, with AbortController to
+  // cancel in-flight requests when the query changes mid-flight.
   useEffect(() => {
-    const trimmed = searchQuery.trim();
+    const trimmed = debouncedSearch.trim();
     if (!trimmed) {
       setIsSearching(false);
       return;
     }
 
+    const controller = new AbortController();
     setIsSearching(true);
-    const timeoutId = setTimeout(async () => {
-      try {
-        await searchMovies(trimmed);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 350);
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+    (async () => {
+      try {
+        await searchMovies(trimmed, 1, { signal: controller.signal });
+      } finally {
+        if (!controller.signal.aborted) setIsSearching(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [debouncedSearch]);
+
+  // Show the spinner immediately when the user starts typing, even before
+  // the debounce fires, so the UI feels responsive.
+  useEffect(() => {
+    if (searchQuery.trim() && searchQuery !== debouncedSearch) {
+      setIsSearching(true);
+    }
+  }, [searchQuery, debouncedSearch]);
 
   // Build genre rows (with localized fallbacks)
   const localizedGenres = tmdbGenres[selectedLanguage] || [];
@@ -120,21 +139,27 @@ export const Home = () => {
     })
     .filter(Boolean);
 
-  const handleWatchlistToggle = async (movieId) => {
-    try {
-      if (watchlist.includes(movieId)) {
-        await removeFromWatchlist(movieId);
-        addToast({ type: 'success', message: 'Removed from watchlist' });
-      } else {
-        await addToWatchlist(movieId);
-        addToast({ type: 'success', message: 'Added to watchlist' });
+  const handleWatchlistToggle = useCallback(
+    async (movieId) => {
+      try {
+        if (watchlist.includes(movieId)) {
+          await removeFromWatchlist(movieId);
+          addToast({ type: 'success', message: 'Removed from watchlist' });
+        } else {
+          await addToWatchlist(movieId);
+          addToast({ type: 'success', message: 'Added to watchlist' });
+        }
+      } catch (error) {
+        addToast({ type: 'error', message: 'Failed to update watchlist' });
       }
-    } catch (error) {
-      addToast({ type: 'error', message: 'Failed to update watchlist' });
-    }
-  };
+    },
+    [watchlist, addToWatchlist, removeFromWatchlist, addToast]
+  );
 
-  const handleMovieClick = (movieId) => navigate(`/movie/${movieId}`);
+  const handleMovieClick = useCallback(
+    (movieId) => navigate(`/movie/${movieId}`),
+    [navigate]
+  );
 
   return (
     <PageWrapper maxWidth="full" noPadding>
@@ -229,6 +254,8 @@ export const Home = () => {
                   onMovieClick={handleMovieClick}
                   onWatchlistToggle={handleWatchlistToggle}
                   watchlistIds={watchlist}
+                  hasMore={hasMorePopular}
+                  onLoadMore={() => loadMorePopular(selectedLanguage)}
                 />
               )}
               {upcoming.length > 0 && (
@@ -238,6 +265,8 @@ export const Home = () => {
                   onMovieClick={handleMovieClick}
                   onWatchlistToggle={handleWatchlistToggle}
                   watchlistIds={watchlist}
+                  hasMore={hasMoreUpcoming}
+                  onLoadMore={() => loadMoreUpcoming(selectedLanguage)}
                 />
               )}
               {genreSections.map(({ id, title, movies: list }) => (
@@ -248,6 +277,8 @@ export const Home = () => {
                   onMovieClick={handleMovieClick}
                   onWatchlistToggle={handleWatchlistToggle}
                   watchlistIds={watchlist}
+                  hasMore={hasMoreByGenre(id, selectedLanguage)}
+                  onLoadMore={() => loadMoreByGenre(id, selectedLanguage)}
                 />
               ))}
             </motion.div>

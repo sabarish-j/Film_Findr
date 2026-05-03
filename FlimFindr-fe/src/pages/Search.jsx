@@ -1,8 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Filter } from 'lucide-react';
 import { MovieContext } from '../context/MovieContext';
 import { useToast } from '../hooks/useToast';
+import { useDebounce } from '../hooks/useDebounce';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -26,58 +27,61 @@ export const Search = () => {
     getWatchlist,
   } = useContext(MovieContext);
 
-  // Debounced auto-search as the user types
+  // Debounced auto-search as the user types — with abort on rapid keystrokes
+  const debouncedQuery = useDebounce(query, 400);
+
   useEffect(() => {
-    const trimmed = query.trim();
+    const trimmed = debouncedQuery.trim();
 
     if (!trimmed) {
       setHasSearched(false);
       return;
     }
 
-    const timeoutId = setTimeout(async () => {
+    const controller = new AbortController();
+    (async () => {
       try {
-        await searchMovies(trimmed);
-        setHasSearched(true);
-        await getWatchlist();
+        await searchMovies(trimmed, 1, { signal: controller.signal });
+        if (!controller.signal.aborted) {
+          setHasSearched(true);
+          await getWatchlist();
+        }
       } catch (err) {
-        addToast({
-          type: 'error',
-          message: 'Search failed. Please try again.',
-        });
+        if (!controller.signal.aborted) {
+          addToast({ type: 'error', message: 'Search failed. Please try again.' });
+        }
       }
-    }, 400);
+    })();
 
-    return () => clearTimeout(timeoutId);
-  }, [query]);
+    return () => controller.abort();
+  }, [debouncedQuery]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setQuery('');
     setHasSearched(false);
-  };
+  }, []);
 
-  const handleWatchlistToggle = async (movieId) => {
-    try {
-      if (watchlist.includes(movieId)) {
-        await removeFromWatchlist(movieId);
-        addToast({
-          type: 'success',
-          message: 'Removed from watchlist',
-        });
-      } else {
-        await addToWatchlist(movieId);
-        addToast({
-          type: 'success',
-          message: 'Added to watchlist',
-        });
+  const handleWatchlistToggle = useCallback(
+    async (movieId) => {
+      try {
+        if (watchlist.includes(movieId)) {
+          await removeFromWatchlist(movieId);
+          addToast({ type: 'success', message: 'Removed from watchlist' });
+        } else {
+          await addToWatchlist(movieId);
+          addToast({ type: 'success', message: 'Added to watchlist' });
+        }
+      } catch (error) {
+        addToast({ type: 'error', message: 'Failed to update watchlist' });
       }
-    } catch (error) {
-      addToast({
-        type: 'error',
-        message: 'Failed to update watchlist',
-      });
-    }
-  };
+    },
+    [watchlist, addToWatchlist, removeFromWatchlist, addToast]
+  );
+
+  const handleMovieClick = useCallback(
+    (id) => navigate(`/movie/${id}`),
+    [navigate]
+  );
 
   return (
     <PageWrapper maxWidth="content">
@@ -159,7 +163,7 @@ export const Search = () => {
             <MovieGrid
               movies={movies}
               isLoading={false}
-              onMovieClick={(id) => navigate(`/movie/${id}`)}
+              onMovieClick={handleMovieClick}
               onWatchlistToggle={handleWatchlistToggle}
               watchlistIds={watchlist}
             />

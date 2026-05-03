@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Bookmark, BookmarkX } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -6,7 +6,7 @@ import { RatingBadge } from './RatingBadge';
 import { TMDB_POSTER_MD, GENRES } from '../../constants';
 import './MovieCard.css';
 
-export const MovieCard = ({
+const MovieCardImpl = ({
   movie,
   size = 'md',
   onClick,
@@ -17,25 +17,32 @@ export const MovieCard = ({
   const [isHovering, setIsHovering] = useState(false);
   const posterUrl = `${TMDB_POSTER_MD}${movie.poster_path}`;
 
-  const genres = movie.genre_ids
-    ?.slice(0, 2)
-    .map((id) => GENRES[id] || 'Unknown')
-    .join(' • ') || 'N/A';
+  const genres =
+    movie.genre_ids
+      ?.slice(0, 2)
+      .map((id) => GENRES[id] || 'Unknown')
+      .join(' • ') || 'N/A';
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     if (onClick) onClick(movie.id);
-  };
+  }, [onClick, movie.id]);
 
-  const handleWatchlistClick = (e) => {
-    e.stopPropagation();
-    if (onWatchlistToggle) onWatchlistToggle(movie.id);
-  };
+  const handleWatchlistClick = useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (onWatchlistToggle) onWatchlistToggle(movie.id);
+    },
+    [onWatchlistToggle, movie.id]
+  );
+
+  const handleMouseEnter = useCallback(() => setIsHovering(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovering(false), []);
 
   return (
     <motion.div
       className={`movie-card movie-card--${size}`}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleCardClick}
       whileHover={{ scale: 1.05 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
@@ -45,6 +52,7 @@ export const MovieCard = ({
         alt={movie.title || movie.name}
         className="movie-card__poster"
         loading={loading}
+        decoding="async"
       />
 
       {/* Hover Overlay */}
@@ -82,3 +90,17 @@ export const MovieCard = ({
     </motion.div>
   );
 };
+
+// Re-render only when the data that actually affects this card changes.
+// Stops Home/Search re-renders (search input, language toggle, etc.) from
+// cascading into hundreds of cards.
+export const MovieCard = memo(MovieCardImpl, (prev, next) => {
+  return (
+    prev.movie.id === next.movie.id &&
+    prev.isInWatchlist === next.isInWatchlist &&
+    prev.size === next.size &&
+    prev.loading === next.loading &&
+    prev.onClick === next.onClick &&
+    prev.onWatchlistToggle === next.onWatchlistToggle
+  );
+});

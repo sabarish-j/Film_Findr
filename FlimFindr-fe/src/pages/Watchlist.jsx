@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookmarkX, Search as SearchIcon } from 'lucide-react';
 import { MovieContext } from '../context/MovieContext';
@@ -59,24 +59,21 @@ export const Watchlist = () => {
     resolve();
   }, [watchlist]);
 
-  const handleWatchlistToggle = async (movieId) => {
-    try {
-      await removeFromWatchlist(movieId);
-      addToast({
-        type: 'success',
-        message: 'Removed from watchlist',
-      });
-    } catch (error) {
-      addToast({
-        type: 'error',
-        message: 'Failed to remove from watchlist',
-      });
-    }
-  };
+  const handleWatchlistToggle = useCallback(
+    async (movieId) => {
+      try {
+        await removeFromWatchlist(movieId);
+        addToast({ type: 'success', message: 'Removed from watchlist' });
+      } catch (error) {
+        addToast({ type: 'error', message: 'Failed to remove from watchlist' });
+      }
+    },
+    [removeFromWatchlist, addToast]
+  );
 
-  const handleNavigateToSearch = () => {
-    navigate('/search');
-  };
+  const handleNavigateToSearch = useCallback(() => navigate('/search'), [navigate]);
+
+  const handleMovieClick = useCallback((id) => navigate(`/movie/${id}`), [navigate]);
 
   return (
     <PageWrapper maxWidth="content">
@@ -121,7 +118,7 @@ export const Watchlist = () => {
           <MovieGrid
             movies={watchlistMovies}
             isLoading={false}
-            onMovieClick={(id) => navigate(`/movie/${id}`)}
+            onMovieClick={handleMovieClick}
             onWatchlistToggle={handleWatchlistToggle}
             watchlistIds={watchlist}
           />
