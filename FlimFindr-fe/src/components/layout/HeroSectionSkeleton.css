@@ -1,0 +1,12 @@
+/* Hero skeleton — matches the real hero's height + gradient so layout is stable */
+.hero-section--skeleton {
+  background: linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg-surface) 100%);
+}
+
+.hero-section--skeleton .hero-section__overlay {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+}

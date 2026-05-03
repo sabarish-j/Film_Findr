@@ -88,12 +88,13 @@ export const Watchlist = () => {
           )}
         </div>
 
-        {/* Loading State */}
+        {/* Loading State — skeleton grid instead of plain spinner */}
         {isLoading && (
-          <div className="watchlist__loading">
-            <Spinner size="lg" />
-            <p>Loading your watchlist...</p>
-          </div>
+          <MovieGrid
+            movies={[]}
+            isLoading={true}
+            skeletonCount={Math.max(watchlist.length, 8)}
+          />
         )}
 
         {/* Empty State */}

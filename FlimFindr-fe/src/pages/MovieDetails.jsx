@@ -10,6 +10,7 @@ import { Badge } from '../components/ui/Badge';
 import { RatingBadge } from '../components/movie/RatingBadge';
 import { CastCard } from '../components/movie/CastCard';
 import { Spinner } from '../components/ui/Spinner';
+import { MovieDetailsSkeleton } from './MovieDetailsSkeleton';
 import { TMDB_BACKDROP, TMDB_POSTER_MD } from '../constants';
 import './MovieDetails.css';
 
@@ -92,11 +93,15 @@ export const MovieDetails = () => {
   };
 
   if (loading || !movie) {
+    // Structured page skeleton — keeps layout stable while fetching.
+    // Falls back to a plain "not found" message only if loading is done and there's no movie.
+    if (loading || !error) {
+      return <MovieDetailsSkeleton />;
+    }
     return (
       <PageWrapper>
         <div className="movie-details__loading">
-          <Spinner size="lg" />
-          <p>{loading ? 'Loading movie details...' : 'Movie not found'}</p>
+          <p>Movie not found</p>
         </div>
       </PageWrapper>
     );

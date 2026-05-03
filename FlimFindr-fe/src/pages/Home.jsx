@@ -8,7 +8,9 @@ import { useToast } from '../hooks/useToast';
 import { useDebounce } from '../hooks/useDebounce';
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { HeroSection } from '../components/layout/HeroSection';
+import { HeroSectionSkeleton } from '../components/layout/HeroSectionSkeleton';
 import { HorizontalMovieRow } from '../components/movie/HorizontalMovieRow';
+import { HorizontalMovieRowSkeleton } from '../components/movie/HorizontalMovieRowSkeleton';
 import { MovieGrid } from '../components/movie/MovieGrid';
 import { Spinner } from '../components/ui/Spinner';
 import { LANGUAGE_MAP, GENRE_ID_MAP } from '../constants';
@@ -163,14 +165,18 @@ export const Home = () => {
 
   return (
     <PageWrapper maxWidth="full" noPadding>
-      {/* Hero — only when not searching */}
-      {!isSearchActive && trending.length > 0 && (
-        <HeroSection
-          movie={trending[0]}
-          onPlayClick={() => handleMovieClick(trending[0].id)}
-          onDetailsClick={() => handleMovieClick(trending[0].id)}
-          isLoading={false}
-        />
+      {/* Hero — skeleton until trending arrives, then real hero */}
+      {!isSearchActive && (
+        trending.length > 0 ? (
+          <HeroSection
+            movie={trending[0]}
+            onPlayClick={() => handleMovieClick(trending[0].id)}
+            onDetailsClick={() => handleMovieClick(trending[0].id)}
+            isLoading={false}
+          />
+        ) : (
+          <HeroSectionSkeleton />
+        )
       )}
 
       {/* Language filter bar — only visible when not actively searching */}
@@ -238,7 +244,7 @@ export const Home = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              {trending.length > 0 && (
+              {trending.length > 0 ? (
                 <HorizontalMovieRow
                   title="Trending Now"
                   movies={trending}
@@ -246,8 +252,10 @@ export const Home = () => {
                   onWatchlistToggle={handleWatchlistToggle}
                   watchlistIds={watchlist}
                 />
+              ) : (
+                <HorizontalMovieRowSkeleton />
               )}
-              {popular.length > 0 && (
+              {popular.length > 0 ? (
                 <HorizontalMovieRow
                   title="Popular Movies"
                   movies={popular}
@@ -257,8 +265,10 @@ export const Home = () => {
                   hasMore={hasMorePopular}
                   onLoadMore={() => loadMorePopular(selectedLanguage)}
                 />
+              ) : (
+                <HorizontalMovieRowSkeleton />
               )}
-              {upcoming.length > 0 && (
+              {upcoming.length > 0 ? (
                 <HorizontalMovieRow
                   title="Coming Soon"
                   movies={upcoming}
@@ -268,19 +278,28 @@ export const Home = () => {
                   hasMore={hasMoreUpcoming}
                   onLoadMore={() => loadMoreUpcoming(selectedLanguage)}
                 />
+              ) : (
+                <HorizontalMovieRowSkeleton />
               )}
-              {genreSections.map(({ id, title, movies: list }) => (
-                <HorizontalMovieRow
-                  key={`${id}_${selectedLanguage}`}
-                  title={title}
-                  movies={list}
-                  onMovieClick={handleMovieClick}
-                  onWatchlistToggle={handleWatchlistToggle}
-                  watchlistIds={watchlist}
-                  hasMore={hasMoreByGenre(id, selectedLanguage)}
-                  onLoadMore={() => loadMoreByGenre(id, selectedLanguage)}
-                />
-              ))}
+              {genreSections.length > 0
+                ? genreSections.map(({ id, title, movies: list }) => (
+                    <HorizontalMovieRow
+                      key={`${id}_${selectedLanguage}`}
+                      title={title}
+                      movies={list}
+                      onMovieClick={handleMovieClick}
+                      onWatchlistToggle={handleWatchlistToggle}
+                      watchlistIds={watchlist}
+                      hasMore={hasMoreByGenre(id, selectedLanguage)}
+                      onLoadMore={() => loadMoreByGenre(id, selectedLanguage)}
+                    />
+                  ))
+                : (
+                    <>
+                      <HorizontalMovieRowSkeleton />
+                      <HorizontalMovieRowSkeleton />
+                    </>
+                  )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -124,12 +124,13 @@ export const Search = () => {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Loading State — skeleton grid instead of plain spinner */}
         {loading && (
-          <div className="search__loading">
-            <Spinner size="lg" />
-            <p>Searching movies...</p>
-          </div>
+          <MovieGrid
+            movies={[]}
+            isLoading={true}
+            skeletonCount={12}
+          />
         )}
 
         {/* Empty State - No Search */}
@@ -152,7 +153,7 @@ export const Search = () => {
         )}
 
         {/* Results */}
-        {movies.length > 0 && (
+        {!loading && movies.length > 0 && (
           <div className="search__results">
             <div className="search__results-header">
               <p className="search__results-count">

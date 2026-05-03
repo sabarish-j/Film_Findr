@@ -4,7 +4,7 @@ import './styles/global.css';
 
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Spinner } from './components/ui/Spinner';
+import { BrandLoader } from './components/ui/BrandLoader';
 
 // Auth pages — keep eager (entry point on first paint)
 import { Login } from './pages/Login';
@@ -39,7 +39,7 @@ const RouteFallback = () => (
       justifyContent: 'center',
     }}
   >
-    <Spinner size="lg" />
+    <BrandLoader size="lg" label="Loading page" />
   </div>
 );
 
