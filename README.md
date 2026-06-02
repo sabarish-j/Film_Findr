@@ -82,7 +82,7 @@ npm run dev
 **Backend environment variables (.env):**
 ```
 PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/filmfindr
+MONGODB_URI=mongodb+srv://sabarishwarannjp15_db_user:sabari1234@cluster0.ilhyz9z.mongodb.net/?appName=Cluster0
 JWT_SECRET=your_jwt_secret_key_here
 TMDB_API_KEY=your_tmdb_api_key_here
 NODE_ENV=development
