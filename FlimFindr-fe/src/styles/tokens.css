@@ -1,0 +1,177 @@
+:root {
+  /* ── COLOR PALETTE ───────────────────────────────── */
+
+  /* Base surfaces */
+  --color-bg-base:        #0a0a0a;
+  --color-bg-surface:     #141414;
+  --color-bg-elevated:    #1f1f1f;
+  --color-bg-overlay:     #2a2a2a;
+  --color-bg-hover:       #323232;
+
+  /* Brand */
+  --color-brand-red:      #e50914;
+  --color-brand-red-dark: #b20710;
+  --color-brand-red-glow: rgba(229, 9, 20, 0.25);
+  --color-brand-blue:     #2196f3;
+  --color-brand-blue-dark:#1976d2;
+  --color-brand-blue-glow:rgba(33, 150, 243, 0.25);
+  --color-brand-gold:     #f5c518;
+
+  /* Text */
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-text-muted:     #999999;
+  --color-text-disabled:  #555555;
+
+  /* State colors */
+  --color-success:        #22c55e;
+  --color-success-bg:     rgba(34, 197, 94, 0.12);
+  --color-error:          #ff6b6b;
+  --color-error-bg:       rgba(255, 107, 107, 0.12);
+  --color-warning:        #f59e0b;
+  --color-warning-bg:     rgba(245, 158, 11, 0.12);
+  --color-info:           #3b82f6;
+  --color-info-bg:        rgba(59, 130, 246, 0.12);
+
+  /* Borders */
+  --color-border:         #2a2a2a;
+  --color-border-subtle:  #1f1f1f;
+  --color-border-focus:   #e50914;
+
+  /* ── TYPOGRAPHY ──────────────────────────────────── */
+
+  --font-family-base:     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono:     'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Scale (Major Third — 1.25 ratio) */
+  --text-xs:    0.64rem;   /* 10.24px */
+  --text-sm:    0.8rem;    /* 12.8px  */
+  --text-base:  1rem;      /* 16px    */
+  --text-lg:    1.25rem;   /* 20px    */
+  --text-xl:    1.563rem;  /* 25px    */
+  --text-2xl:   1.953rem;  /* 31.25px */
+  --text-3xl:   2.441rem;  /* 39px    */
+  --text-4xl:   3.052rem;  /* 48.8px  */
+  --text-5xl:   3.815rem;  /* 61px    */
+
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold:600;
+  --font-weight-bold:    700;
+  --font-weight-black:   900;
+
+  --line-height-tight:   1.2;
+  --line-height-snug:    1.4;
+  --line-height-normal:  1.6;
+  --line-height-relaxed: 1.75;
+
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide:   0.05em;
+  --letter-spacing-wider:  0.1em;
+
+  /* ── SPACING SCALE (8pt grid) ────────────────────── */
+  --space-1:    0.25rem;  /* 4px  */
+  --space-2:    0.5rem;   /* 8px  */
+  --space-3:    0.75rem;  /* 12px */
+  --space-4:    1rem;     /* 16px */
+  --space-5:    1.25rem;  /* 20px */
+  --space-6:    1.5rem;   /* 24px */
+  --space-8:    2rem;     /* 32px */
+  --space-10:   2.5rem;   /* 40px */
+  --space-12:   3rem;     /* 48px */
+  --space-16:   4rem;     /* 64px */
+  --space-20:   5rem;     /* 80px */
+  --space-24:   6rem;     /* 96px */
+
+  /* ── BORDER RADIUS ───────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ── SHADOWS ─────────────────────────────────────── */
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.6);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.7);
+  --shadow-glow-red:  0 0 24px rgba(229,9,20,0.4);
+  --shadow-glow-blue: 0 0 24px rgba(33,150,243,0.4);
+  --shadow-card-hover: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(229,9,20,0.2);
+
+  /* ── Z-INDEX ─────────────────────────────────────── */
+  --z-below:   -1;
+  --z-base:     0;
+  --z-raised:   10;
+  --z-dropdown: 100;
+  --z-navbar:   200;
+  --z-modal:    300;
+  --z-toast:    400;
+  --z-tooltip:  500;
+
+  /* ── TRANSITIONS ─────────────────────────────────── */
+  --ease-default:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in:       cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-fast:   150ms;
+  --duration-normal: 250ms;
+  --duration-slow:   400ms;
+
+  --transition-default: var(--duration-normal) var(--ease-default);
+  --transition-spring:  var(--duration-slow)   var(--ease-spring);
+
+  /* ── LAYOUT ──────────────────────────────────────── */
+  --max-width-content:   1400px;
+  --max-width-narrow:    640px;
+  --max-width-auth:      440px;
+  --navbar-height:       68px;
+
+  /* ── MOVIE CARD DIMENSIONS ───────────────────────── */
+  --card-width-sm:       140px;
+  --card-width-md:       185px;
+  --card-width-lg:       220px;
+  --card-poster-ratio:   1.5;  /* height = width × 1.5 */
+
+  /* ── SKELETON ANIMATION ──────────────────────────── */
+  --skeleton-base:    #1f1f1f;
+  --skeleton-shine:   #2a2a2a;
+  --skeleton-duration: 1.6s;
+}
+
+/* Light theme overrides — applied when <html data-theme="light"> */
+[data-theme='light'] {
+  --color-bg-base:        #fafafa;
+  --color-bg-surface:     #ffffff;
+  --color-bg-elevated:    #f3f3f3;
+  --color-bg-overlay:     #e6e6e6;
+  --color-bg-hover:       #ededed;
+
+  --color-text-primary:   #0a0a0a;
+  --color-text-secondary: #2a2a2a;
+  --color-text-muted:     #666666;
+  --color-text-disabled:  #aaaaaa;
+
+  --color-border:         #e0e0e0;
+  --color-border-subtle:  #f0f0f0;
+
+  --skeleton-base:    #e6e6e6;
+  --skeleton-shine:   #f4f4f4;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.12);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:    0ms;
+    --duration-normal:  0ms;
+    --duration-slow:    0ms;
+    --skeleton-duration: 0s;
+  }
+}
