@@ -16,9 +16,19 @@ const app = express();
 // Connect to database
 connectDB();
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000',
+].filter(Boolean);
+
 // Middleware
 app.use(compression());
-app.use(cors({ exposedHeaders: ['X-Cache'] }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  exposedHeaders: ['X-Cache'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
