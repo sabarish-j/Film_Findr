@@ -16,16 +16,24 @@ const app = express();
 // Connect to database
 connectDB();
 
+const normalizeOrigin = (origin) => origin?.replace(/\/+$/, '');
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  ...(process.env.FRONTEND_URL || '').split(','),
   'http://localhost:5173',
   'http://localhost:3000',
-].filter(Boolean);
+].map((origin) => normalizeOrigin(origin.trim())).filter(Boolean);
 
 // Middleware
 app.use(compression());
 app.use(cors({
-  origin: allowedOrigins,
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   exposedHeaders: ['X-Cache'],
 }));
